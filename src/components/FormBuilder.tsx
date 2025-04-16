@@ -24,6 +24,8 @@ interface FormBuilderProps {
 }
 
 const FormBuilder: React.FC<FormBuilderProps> = ({ initialSchema, previewDefault = false, onClear }) => {
+  // Highlight moved field index (fix: move to top-level state)
+  const [lastMovedIndex, setLastMovedIndex] = React.useState<number | null>(null);
   // Use custom hooks for schema/fields and file IO
   const {
     schema,
@@ -184,6 +186,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ initialSchema, previewDefault
                 />
               </div>
 
+
 <div className="space-y-4">
   {schema.fields.map((field: FormField, index: number) => {
     const hasValidation = validationErrors.some((vi) => vi.index === index);
@@ -196,21 +199,60 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ initialSchema, previewDefault
       ref: (el: HTMLDivElement | null) => (fieldRefs.current[index] = el),
       className: showFieldValidation ? 'border-2 border-yellow-400 rounded-md p-1' : undefined,
     };
+    // --- Add move up/down controls for each field and highlight ---
+    const moveField = (from: number, to: number) => {
+      if (to < 0 || to >= schema.fields.length) return;
+      const newFields = [...schema.fields];
+      const [moved] = newFields.splice(from, 1);
+      newFields.splice(to, 0, moved);
+      setSchema({ ...schema, fields: newFields });
+      setShowSavedBanner(false);
+      setLastMovedIndex(to);
+      setTimeout(() => setLastMovedIndex(null), 800);
+    };
+    const MoveButtons = (
+      <div className="flex gap-2 mb-2 items-center">
+        {/* Drag handle visual (not functional) */}
+        <span title="Drag handle" className="cursor-move text-gray-400 mr-2 select-none" style={{fontSize: '1.2em'}}>
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><circle cx="5" cy="6" r="1.5"/><circle cx="5" cy="10" r="1.5"/><circle cx="5" cy="14" r="1.5"/><circle cx="10" cy="6" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="14" r="1.5"/></svg>
+        </span>
+        <button
+          type="button"
+          className={`px-2 py-1 bg-theme-bg-secondary border border-theme-border rounded text-xs hover:bg-theme-bg ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={index === 0}
+          onClick={() => moveField(index, index - 1)}
+        >
+          ↑ Move Up
+        </button>
+        <button
+          type="button"
+          className={`px-2 py-1 bg-theme-bg-secondary border border-theme-border rounded text-xs hover:bg-theme-bg ${index === schema.fields.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={index === schema.fields.length - 1}
+          onClick={() => moveField(index, index + 1)}
+        >
+          ↓ Move Down
+        </button>
+      </div>
+    );
+    // --- End move up/down controls ---
+    const highlightClass = lastMovedIndex === index
+      ? 'bg-yellow-200 ring-2 ring-yellow-400 transition-all duration-700'
+      : 'transition-all duration-300';
     switch (field.type) {
       case 'text':
-        return <div key={index} {...wrapperProps}><TextFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={`${highlightClass} ${wrapperProps.className || ''}`}>{MoveButtons}<TextFieldBuilder {...fieldProps} /></div>;
       case 'number':
-        return <div key={index} {...wrapperProps}><NumberFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={highlightClass + ' ' + (wrapperProps.className || '')}>{MoveButtons}<NumberFieldBuilder {...fieldProps} /></div>;
       case 'email':
-        return <div key={index} {...wrapperProps}><EmailFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={highlightClass + ' ' + (wrapperProps.className || '')}>{MoveButtons}<EmailFieldBuilder {...fieldProps} /></div>;
       case 'password':
-        return <div key={index} {...wrapperProps}><PasswordFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={highlightClass + ' ' + (wrapperProps.className || '')}>{MoveButtons}<PasswordFieldBuilder {...fieldProps} /></div>;
       case 'select':
-        return <div key={index} {...wrapperProps}><SelectFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={highlightClass + ' ' + (wrapperProps.className || '')}>{MoveButtons}<SelectFieldBuilder {...fieldProps} /></div>;
       case 'checkbox':
-        return <div key={index} {...wrapperProps}><CheckboxFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={highlightClass + ' ' + (wrapperProps.className || '')}>{MoveButtons}<CheckboxFieldBuilder {...fieldProps} /></div>;
       case 'radio':
-        return <div key={index} {...wrapperProps}><RadioFieldBuilder {...fieldProps} /></div>;
+        return <div key={index} {...wrapperProps} className={highlightClass + ' ' + (wrapperProps.className || '')}>{MoveButtons}<RadioFieldBuilder {...fieldProps} /></div>;
       default:
         return null;
     }
