@@ -1,0 +1,70 @@
+{
+  "title": "User Registration",
+  "description": "Please fill out the following information to create your account.",
+  "fields": [
+    {
+      "type": "text",
+      "name": "fullName",
+      "label": "Full Name",
+      "required": true,
+      "placeholder": "John Doe"
+    },
+    {
+      "type": "number",
+      "name": "age",
+      "label": "Age",
+      "required": true
+    },
+    {
+      "type": "email",
+      "name": "email",
+      "label": "Email Address",
+      "required": true,
+      "placeholder": "john@example.com"
+    },
+    {
+      "type": "password",
+      "name": "password",
+      "label": "Password",
+      "required": true,
+      "pattern": "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
+    },
+    {
+      "type": "select",
+      "name": "accountType",
+      "label": "Account Type",
+      "required": true,
+      "options": [
+        { "label": "Personal", "value": "personal" },
+        { "label": "Business", "value": "business" }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "companyName",
+      "label": "Company Name",
+      "dependsOn": {
+        "field": "accountType",
+        "value": "business"
+      }
+    },
+    {
+      "type": "checkbox",
+      "name": "newsletter",
+      "label": "Subscribe to newsletter",
+      "defaultValue": true
+    },
+    {
+      "type": "radio",
+      "name": "contactPreference",
+      "label": "Preferred Contact Method",
+      "options": [
+        { "label": "Email", "value": "email" },
+        { "label": "Phone", "value": "phone" },
+        { "label": "SMS", "value": "sms" }
+      ]
+    }
+  ],
+  "submitLabel": "Create Account"
+}
+

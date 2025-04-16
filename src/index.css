@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --theme-bg: #ffffff;
+    --theme-bg-secondary: #f3f4f6;
+    --theme-text: #111827;
+    --theme-text-secondary: #4b5563;
+    --theme-border: #e5e7eb;
+    --theme-input: #f9fafb;
+  }
+
+  :root[class~="dark"] {
+    --theme-bg: #111827;
+    --theme-bg-secondary: #1f2937;
+    --theme-text: #f9fafb;
+    --theme-text-secondary: #d1d5db;
+    --theme-border: #374151;
+    --theme-input: #1f2937;
+  }
+}
